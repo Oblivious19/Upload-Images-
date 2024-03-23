@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Upload</title>
+  <style>
+    .image-container {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .image-container img {
+      max-width: 200px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Upload Image</h1>
+  <form id="upload-form" enctype="multipart/form-data">
+    <input type="file" name="image" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <h2>Uploaded Images</h2>
+  <div class="image-container"></div>
+
+  <script>
+    const uploadForm = document.getElementById('upload-form');
+    const imageContainer = document.querySelector('.image-container');
+
+    uploadForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(event.target);
+      const response = await fetch('/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.imageUrl) {
+        alert('Image uploaded successfully!');
+        fetchImages();
+      } else {
+        alert('Error uploading image');
+      }
+
+      uploadForm.reset();
+    });
+
+    async function fetchImages() {
+      const response = await fetch('/images');
+      const images = await response.json();
+
+      imageContainer.innerHTML = '';
+
+      images.forEach(image => {
+        const img = document.createElement('img');
+        img.src = image.imageUrl; 
+        imageContainer.appendChild(img);
+      });
+    }
+
+    fetchImages();
+  </script>
+</body>
+</html>
